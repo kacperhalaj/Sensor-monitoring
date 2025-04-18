@@ -17,9 +17,19 @@ class LightSensor(Sensor):
         response = requests.get(url)
         data = response.json()
 
+        # Pogoda
         weather = data.get("weather", [{}])[0].get("main", "").lower()
 
-        # przykladowe lx
+        # Godzina lokalna
+        timestamp_utc = datetime.utcnow()
+        timezone_offset = data.get("timezone", 0)  # sekundy
+        local_time = timestamp_utc.timestamp() + timezone_offset
+        hour = datetime.fromtimestamp(local_time).hour
+
+        # Czy jest dzień? (6–18)
+        is_daytime = 6 <= hour < 18
+
+        # Bazowe lx w zależności od pogody
         base_light = {
             "clear": 10000,
             "clouds": 5000,
@@ -31,9 +41,13 @@ class LightSensor(Sensor):
             "fog": 50
         }.get(weather, 200)
 
+        # Jeśli noc, drastycznie obniżamy natężenie światła
+        if not is_daytime:
+            base_light *= 0.01  # np. 1% z dziennego natężenia
+
         self.last_value = round(min(max(base_light, self.min_value), self.max_value), 2)
 
-        # data
+        # Data
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print(f"[{timestamp}] Odczyt natężenia światła ({self.name}): {self.last_value} {self.unit}")
         return self.last_value
