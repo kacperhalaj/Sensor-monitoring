@@ -3,10 +3,11 @@ from datetime import datetime
 from sensor import Sensor
 
 class LightSensor(Sensor):
-    def __init__(self, sensor_id, name, unit, min_value, max_value, api_key, city):
+    def __init__(self, sensor_id, name, unit, min_value, max_value, api_key, city, logger=None):
         super().__init__(sensor_id, name, unit, min_value, max_value)
         self.api_key = api_key
         self.city = city
+        self.logger = logger
 
     def read_value(self):
         if not self.active:
@@ -47,7 +48,12 @@ class LightSensor(Sensor):
 
         self.last_value = round(min(max(base_light, self.min_value), self.max_value), 2)
 
-        # Data
+        # zapis do logu
+        if self.logger:
+            timestamp = datetime.now()
+            self.logger.log_reading(self.sensor_id, timestamp, self.last_value, self.unit)
+
+        # data
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print(f"[{timestamp}] Odczyt natężenia światła ({self.name}): {self.last_value} {self.unit}")
         return self.last_value

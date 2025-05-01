@@ -1,9 +1,9 @@
 import random
 import time
-
+from datetime import datetime
 
 class Sensor:
-    def __init__(self, sensor_id, name, unit, min_value, max_value, frequency=1):
+    def __init__(self, sensor_id, name, unit, min_value, max_value, frequency=1, logger=None):
         """
         Inicjalizacja czujnika.
 
@@ -13,6 +13,7 @@ class Sensor:
         :param min_value: Minimalna wartość odczytu
         :param max_value: Maksymalna wartość odczytu
         :param frequency: Częstotliwość odczytów (sekundy)
+        :param logger: Obiekt loggera do zapisu odczytów
         """
         self.sensor_id = sensor_id
         self.name = name
@@ -22,17 +23,24 @@ class Sensor:
         self.frequency = frequency
         self.active = True
         self.last_value = None
+        self.logger = logger
 
     def read_value(self):
         """
         Symuluje pobranie odczytu z czujnika.
-        W klasie bazowej zwraca losową wartość z przedziału [min_value, max_value].
+        Zapisuje wynik do logu, jeśli logger jest dostarczony.
         """
         if not self.active:
             raise Exception(f"Czujnik {self.name} jest wyłączony.")
 
         value = random.uniform(self.min_value, self.max_value)
         self.last_value = value
+
+        # jeśli jest logger, zapisujemy odczyt
+        if self.logger:
+            timestamp = datetime.now()
+            self.logger.log_reading(self.sensor_id, timestamp, value, self.unit)
+
         return value
 
     def calibrate(self, calibration_factor):
@@ -68,5 +76,3 @@ class Sensor:
 
     def __str__(self):
         return f"Sensor(id={self.sensor_id}, name={self.name}, unit={self.unit})"
-
-

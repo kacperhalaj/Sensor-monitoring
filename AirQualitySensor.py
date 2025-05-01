@@ -3,10 +3,11 @@ from datetime import datetime
 from sensor import Sensor
 
 class AirQualitySensor(Sensor):
-    def __init__(self, sensor_id, name, unit, min_value, max_value, api_token, city):
+    def __init__(self, sensor_id, name, unit, min_value, max_value, api_token, city, logger=None):
         super().__init__(sensor_id, name, unit, min_value, max_value)
         self.api_token = api_token
         self.city = city
+        self.logger = logger
 
     def read_value(self):
         if not self.active:
@@ -24,6 +25,11 @@ class AirQualitySensor(Sensor):
 
         aqi = data["data"]["aqi"]
         self.last_value = round(min(max(aqi, self.min_value), self.max_value), 2)
+
+        # zapis do logu
+        if self.logger:
+            timestamp = datetime.now()
+            self.logger.log_reading(self.sensor_id, timestamp, self.last_value, self.unit)
 
         # data
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

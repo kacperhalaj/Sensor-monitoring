@@ -1,0 +1,9 @@
+{
+    "log_dir": "logs",
+    "filename_pattern": "%Y-%m-%d_%H-%M-%S.csv",
+    "buffer_size": 10,
+    "rotate_every_hours": 24,
+    "max_size_mb": 10,
+    "rotate_after_lines": 1000,
+    "retention_days": 7
+}

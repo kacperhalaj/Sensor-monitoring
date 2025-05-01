@@ -2,11 +2,25 @@ import requests
 from datetime import datetime
 from sensor import Sensor
 
+
 class TemperatureSensor(Sensor):
-    def __init__(self, sensor_id, name, unit, min_value, max_value, api_key, city):
+    def __init__(self, sensor_id, name, unit, min_value, max_value, api_key, city, logger=None):
+        """
+        Inicjalizuje czujnik temperatury.
+
+        :param sensor_id: Unikalny identyfikator czujnika
+        :param name: Nazwa czujnika
+        :param unit: Jednostka temperatury (np. '°C')
+        :param min_value: Minimalna wartość odczytu
+        :param max_value: Maksymalna wartość odczytu
+        :param api_key: Klucz API do OpenWeatherMap
+        :param city: Miasto do pobierania danych o pogodzie
+        :param logger: Obiekt loggera (opcjonalny)
+        """
         super().__init__(sensor_id, name, unit, min_value, max_value)
         self.api_key = api_key
         self.city = city
+        self.logger = logger
 
     def read_value(self):
         if not self.active:
@@ -22,9 +36,14 @@ class TemperatureSensor(Sensor):
             print(f"Problem z odpowiedzią API: {data}")
             raise Exception("Brak danych o temperaturze.")
 
-
-        temperature = data["main"]["temp"]  # Temperatura w °C
+        # odczyt
+        temperature = data["main"]["temp"]
         self.last_value = round(temperature, 2)
+
+        # zapis do logu
+        if self.logger:
+            timestamp = datetime.now()
+            self.logger.log_reading(self.sensor_id, timestamp, self.last_value, self.unit)
 
         # data
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
