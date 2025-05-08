@@ -29,8 +29,8 @@ proximity_sensor = ProximitySensor("PRX1", "Czujnik zbliżeniowy", "cm", 0, 200,
 logger.start()
 
 # Odczyty
-num_readings = 13
-duration = 1
+num_readings = 10
+duration = 0.1
 interval = duration / num_readings
 
 for i in range(num_readings):
