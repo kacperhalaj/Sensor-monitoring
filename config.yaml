@@ -1,0 +1,9 @@
+# Konfiguracja komunikacji sieciowej
+network:
+  client:
+    host: "127.0.0.1"
+    port: 5000
+    timeout: 5.0
+    retries: 3
+  server:
+    port: 5000

@@ -1,4 +1,7 @@
 import time
+from datetime import datetime
+import signal
+import sys
 from TemperatureSensor import TemperatureSensor
 from HumiditySensor import HumiditySensor
 from PressureSensor import PressureSensor
@@ -7,7 +10,7 @@ from AirQualitySensor import AirQualitySensor
 from AccelerometerSensor import AccelerometerSensor
 from ProximitySensor import ProximitySensor
 from Logger import Logger
-
+from network.client import NetworkClient
 
 API_KEY = "77fd14fe50e6ccd5d66cfd6c83d9d255"
 CITY = "Rzeszow"
@@ -15,6 +18,23 @@ AQICN_TOKEN = "f033dbd191aa8762aac0ac0d1d19d7770066d737"
 
 # Konfiguracja loggera
 logger = Logger(config_path="config.json")
+
+# Inicjalizacja klienta sieciowego
+network_client = NetworkClient(logger=logger)
+
+
+# Obsługa zamknięcia aplikacji
+def signal_handler(sig, frame):
+    print("\nZatrzymywanie aplikacji...")
+    # Zatrzymanie loggera
+    logger.stop()
+    # Zamknięcie połączenia sieciowego
+    network_client.close()
+    sys.exit(0)
+
+
+# Rejestracja handlera dla sygnału przerwania (CTRL+C)
+signal.signal(signal.SIGINT, signal_handler)
 
 # Czujniki
 temp_sensor = TemperatureSensor("T1", "Czujnik temperatury", "°C", -20, 50, API_KEY, CITY, logger)
@@ -35,14 +55,42 @@ interval = duration / num_readings
 
 for i in range(num_readings):
     print(f"\n--- Odczyt {i + 1} ---")
-    temp_sensor.read_value()
-    humidity_sensor.read_value()
-    pressure_sensor.read_value()
-    light_sensor.read_value()
-    air_quality_sensor.read_value()
-    accelerometer_sensor.read_value()
-    proximity_sensor.read_value()
+
+    # Odczyt wartości z czujników
+    temp_value = temp_sensor.read_value()
+    humidity_value = humidity_sensor.read_value()
+    pressure_value = pressure_sensor.read_value()
+    light_value = light_sensor.read_value()
+    air_quality_value = air_quality_sensor.read_value()
+    accelerometer_value = accelerometer_sensor.read_value()
+    proximity_value = proximity_sensor.read_value()
+
+    # Przygotowanie danych do wysłania
+    sensor_data = {
+        "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "readings": {
+            "temperature": {"value": temp_value, "unit": "°C", "sensor_id": "T1"},
+            "humidity": {"value": humidity_value, "unit": "%", "sensor_id": "H1"},
+            "pressure": {"value": pressure_value, "unit": "hPa", "sensor_id": "P1"},
+            "light": {"value": light_value, "unit": "lux", "sensor_id": "L1"},
+            "air_quality": {"value": air_quality_value, "unit": "AQI", "sensor_id": "A1"},
+            "proximity": {"value": proximity_value, "unit": "cm", "sensor_id": "PRX1"}
+        }
+    }
+
+    # Wysłanie danych do serwera
+    try:
+        if network_client.send(sensor_data):
+            print("Dane pomyślnie wysłane do serwera")
+        else:
+            print("Nie udało się wysłać danych do serwera")
+    except Exception as e:
+        print(f"Błąd podczas wysyłania danych: {str(e)}")
+
     time.sleep(interval)
 
 # logowanie stop
 logger.stop()
+
+# Zamknięcie połączenia sieciowego
+network_client.close()
