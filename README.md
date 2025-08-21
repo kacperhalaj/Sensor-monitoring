@@ -1,109 +1,73 @@
-# py2025-project-v1
+# Sensor Monitoring System
 
-## Temat projektu:
+![Główny ekran aplikacji](EkranGlowny.png)
 
-Stwórz system symulujący pracę kilku czujników (np. temperatury, wilgotności, ciśnienia) w środowisku monitoringu. System będzie generował dane w czasie rzeczywistym, zapisywał je na dysk, umożliwiał ich analizę i wizualizację oraz udostępniał dane przez prostą komunikację sieciową. Dodatkowo, system będzie posiadał prosty graficzny interfejs użytkownika (GUI).
+## Temat projektu
+
+System służy do symulacji oraz monitorowania pracy wielu typów czujników: temperatury, wilgotności, ciśnienia, jakości powietrza, światła, przyspieszenia oraz zbliżeniowych. Dane generowane są w czasie rzeczywistym oraz mogą być przesyłane przez sieć, zapisywane do plików, a także prezentowane w graficznym interfejsie użytkownika.
 
 ---
 
-### Główne funkcjonalności:
+### Główne funkcjonalności projektu
 
-**Symulacja czujników:** Za pomocą generatorów i metod losowych (z wykorzystaniem Numpy) symulowane będą odczyty z czujników.
+- **Symulacja czujników:**  
+  Każdy rodzaj czujnika jest zaimplementowany jako oddzielny plik Python (np. `TemperatureSensor.py`, `PressureSensor.py`, `LightSensor.py`). Generowane są losowe, realistyczne wartości w określonych interwałach.
 
-**Logowanie danych:** Dane z czujników będą zapisywane do plików csv.
+- **Logowanie danych:**  
+  Moduł `Logger.py` odpowiada za zapisywanie odczytów do plików CSV, zarządzanie archiwami oraz odczyt wcześniejszych logów.
 
-**Serializacja konfiguracji:** System będzie umożliwiał zapisywanie i odczytywanie konfiguracji czujników przy użyciu JSON.
+- **Serializacja konfiguracji:**  
+  Konfiguracje czujników i aplikacji przechowywane są w plikach `config.json`, `config.yaml` oraz `server_gui_config.json`.
 
-**Komunikacja sieciowa:** Realizacja prostego serwera-klienta wykorzystującego gniazda (sockets) do przesyłania danych z czujników na odległy terminal lub aplikację.
+- **Komunikacja sieciowa:**  
+  Prosty serwer (`run_server.py`), klient (`run_client.py`) oraz dodatkowe moduły w folderach `network/` i `server/` umożliwiają przesyłanie danych z czujników przez sieć.
 
-**GUI:** Implementacja interfejsu graficznego (przy użyciu Tkinter), który pozwoli na uruchomienie symulacji, podgląd odczytów oraz sterowanie pracą systemu.
+- **GUI:**  
+  Graficzny interfejs (`server_gui.py`) pozwala na uruchomienie symulacji, podgląd odczytów oraz sterowanie pracą systemu.
 
-**Analiza i wizualizacja danych:** Przygotowanie Jupyter Notebooka, w którym dane z czujników zostaną zanalizowane przy użyciu Numpy, Scipy, Matplotlib oraz Pandas, a wyniki zaprezentowane graficznie.
+- **Testy i analiza:**  
+  Folder `tests/` zawiera testy jednostkowe. W pliku `sensors.md` opisane są wymagania dotyczące implementacji czujników.
 
-## Propozycja podziału pracy i wskazówki implementacyjne
+---
 
-### Architektura i podział modułów
+## Struktura projektu
 
-    Moduł czujników:
-    Implementacja klas czujników oraz generatorów symulujących dane. Zadaniem tego modułu będzie generowanie danych według określonych reguł (np. cykliczne odczyty co kilka sekund).
+- `main.py` – główny plik uruchamiający system
+- `sensor.py` – implementacja bazowej klasy czujnika
+- `Logger.py` – zapis danych
+- `server_gui.py` – GUI serwera
+- `run_client.py`, `run_server.py` – komunikacja sieciowa
+- `config.*` – konfiguracje
+- `tests/` – testy jednostkowe
+- `network/`, `server/` – dodatkowe moduły sieciowe
 
-    Moduł logowania i operacji na plikach:
-    Klasa Logger odpowiada za zapisywanie odczytów do plików, zarządzanie archiwami i odczyt poprzednich logów.
+---
 
-    Moduł komunikacji sieciowej:
-    Implementacja prostego serwera (oraz ewentualnie klienta), który przesyła dane czujników przez sieć. Może to być zastosowane do symulacji scenariusza zdalnego monitoringu.
+## Przykład działania
 
-    Moduł interfejsu graficznego:
-    Prosty GUI umożliwiający włączenie/wyłączenie symulacji, podgląd aktualnych danych oraz konfigurację ustawień czujników.
+Po uruchomieniu projektu (np. przez `main.py` lub `server_gui.py`) generowane są przykładowe dane czujników, zapisywane do plików oraz wyświetlane w GUI. Możliwa jest również ich transmisja przez sieć.
 
-## Jeśli wybierzesz ten projekt powinieneś:
+---
 
-- zrobić forka tego repozytorium na swoim koncie i commitować kolejne postępy,
-- rozpocząć od implementacji modułu czujników, do którego wymagania opisane są w pliku sensors.md, wymagania do kolejnych modułów pojawią się na kolejnych laboratoriach.
+## Zalecenia dotyczące pracy z projektem
 
-### Struktura gałęzi
+- Forkuj repozytorium i commituj postępy
+- Korzystaj z modularnej struktury plików
+- Testuj nowe funkcjonalności w oddzielnych gałęziach
+- Dokumentuj zmiany w commitach
 
-Warto przyjąć prostą strategię gałęzi, która umożliwi łatwe zarządzanie różnymi etapami pracy:
+---
 
-**Główna gałąź (main lub master):**
-Zawiera stabilny kod – wersje gotowe do demonstracji lub udostępnienia.
+## Główne ekran aplikacji
 
-**Gałąź deweloperska (develop):**
-Na niej integrowane są wszystkie zmiany przed scalenie ich do głównej gałęzi. Może służyć jako staging area.
+Poniżej przykładowy wygląd interfejsu:
 
-Gałęzie funkcjonalności (feature branches):
-Każda nowa funkcjonalność lub moduł (np. „feature/symulacja-czujników”, „feature/gui”, „feature/komunikacja-sieciowa”) powinna być rozwijana w osobnej gałęzi. Po zakończeniu prac i przetestowaniu zmian scalamy tę gałąź z develop.
+![Podgląd ekranu głównego](EkranGlowny.png)
 
-### Przykładowy schemat:
+---
 
-```text
-main
- |
- └── develop
-       |
-       ├── feature/symulacja-czujników
-       ├── feature/gui
-       ├── feature/logger
-       └── feature/komunikacja-sieciowa
-```
+## Autor
 
-### Moment commitowania
+- kacperhalaj
 
-    Po zakończeniu konkretnego zadania lub funkcjonalności:
-    Po implementacji logiki symulacji czujników, stworzeniu klasy obsługującej pliki, zaimplementowaniu GUI, czy dodaniu modułu komunikacji sieciowej warto wykonać commit.
-
-    Przy implementacji małych, ale znaczących kroków:
-    Każdy commit powinien reprezentować logicznie spójną zmianę – nie warto łączyć w jednym commicie zmian dotyczących zupełnie różnych obszarów (np. refaktoryzacji kodu plus dodanie nowej funkcjonalności).
-
-    Po przetestowaniu i zaakceptowaniu zmian:
-    Jeśli zostały napisane testy jednostkowe, warto zatwierdzić commit już po przejściu testów.
-
-### Zalecenia dotyczące commitów
-
-**Precyzyjne komunikaty:**
-
-Każdy commit powinien mieć jasny i zwięzły komunikat, który opisuje, co zostało zmienione.
-
-**Przykłady:**
-
-    Dodanie klasy Sensor i podstawowej symulacji odczytów
-
-    Implementacja zapisu danych do pliku CSV
-
-    Refaktoryzacja modułu logger – dodanie logowania błędów
-
-    Dodanie testów jednostkowych dla funkcji generujących dane
-
-
-**Tworzenie tagów**
-
-Tagi służą oznaczeniu istotnych momentów w projekcie, gdy kod osiąga pewien poziom dojrzałości. Tagowanie ważnych wersji projektu - po zakończeniu konkretnego etapu rozwoju, np.:
-
-        v0.1: Po ukończeniu wstępnej wersji symulacji czujników – pełna funkcjonalność symulacji i pierwsze testy.
-
-        v0.2: Po dodaniu operacji na plikach i serializacji konfiguracji.
-
-        v0.3: Po wdrożeniu komunikacji sieciowej.
-
-        v1.0: Stabilna wersja systemu, zawierająca wszystkie wymagane moduły (symulacja, logowanie, GUI, testy, analiza danych).
-
+---
